@@ -1,0 +1,192 @@
+{% extends 'columndimensioncalculatorapp/basetemplate.html' %}
+{% load static %}
+
+{% block title %}Column Analysis{% endblock %}
+
+{% block body %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'columndimensioncalculatorapp/css/homepage.css' %}">
+
+<div class="ca-page">
+
+  <!-- ── Header ── -->
+  <header class="ca-header">
+
+    <div class="ca-glyph" aria-hidden="true">
+      <div class="ca-glyph-cap"></div>
+      <div class="ca-glyph-neck"></div>
+      <div class="ca-glyph-shaft"></div>
+      <div class="ca-glyph-base"></div>
+      <div class="ca-glyph-plinth"></div>
+    </div>
+
+    <div class="ca-header-text">
+      <p class="ca-eyebrow">Structural Analysis Tool</p>
+      <h1 class="ca-title">Classical <em>Column</em><br>Calculator</h1>
+      <p class="ca-subtitle">
+        Compute volume, mass, and moments of inertia for tapered Doric columns
+        modelled as truncated cones.
+      </p>
+      <p class="ca-parthenon-note">
+        Default dimensions &rarr;
+        <span>Parthenon, Athens &middot; 447 BC</span>
+      </p>
+    </div>
+
+  </header>
+
+  <!-- ── Main grid ── -->
+  <div class="ca-grid">
+
+    <!-- LEFT: Form -->
+    <div class="ca-panel ca-panel--form">
+      <p class="ca-panel-label">Parameters</p>
+
+      {% if errors.general %}
+      <div class="ca-error-banner">&#9888; {{ errors.general }}</div>
+      {% endif %}
+
+      <form method="POST" id="ca-form">
+        {% csrf_token %}
+
+        <div class="ca-field">
+          <div class="ca-label">
+            <span class="ca-label-text">Height</span>
+            <span class="ca-label-hint">m &nbsp;&mdash;&nbsp; Parthenon: <b>10.43</b></span>
+          </div>
+          <input
+            class="ca-input"
+            type="number"
+            name="height"
+            id="id_height"
+            step="0.01"
+            min="0.01"
+            placeholder="10.43"
+            value="{{ values.height }}"
+            required
+          >
+        </div>
+
+        <div class="ca-field">
+          <div class="ca-label">
+            <span class="ca-label-text">Base Diameter</span>
+            <span class="ca-label-hint">m &nbsp;&mdash;&nbsp; Parthenon: <b>1.90</b></span>
+          </div>
+          <input
+            class="ca-input"
+            type="number"
+            name="base_diameter"
+            id="id_base_diameter"
+            step="0.01"
+            min="0.01"
+            placeholder="1.90"
+            value="{{ values.base_diameter }}"
+            required
+          >
+        </div>
+
+        <div class="ca-field">
+          <div class="ca-label">
+            <span class="ca-label-text">Taper Ratio</span>
+            <span class="ca-label-hint">0.01 – 1.0 &nbsp;&mdash;&nbsp; Greek: <b>0.77</b></span>
+          </div>
+          <input
+            class="ca-input"
+            type="number"
+            name="taper_ratio"
+            id="id_taper_ratio"
+            step="0.01"
+            min="0.01"
+            max="1.0"
+            placeholder="0.77"
+            value="{{ values.taper_ratio }}"
+            required
+          >
+        </div>
+
+        <div class="ca-field">
+          <div class="ca-label">
+            <span class="ca-label-text">Material</span>
+          </div>
+          <select class="ca-input" name="material" id="id_material">
+            {% for key, label in material_choices %}
+            <option value="{{ key }}" {% if values.material == key %}selected{% endif %}>
+              {{ label }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button type="submit" class="ca-btn">
+          <span>&#9670;&nbsp;&nbsp;Run Analysis</span>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div class="ca-panel ca-panel--results">
+      <p class="ca-panel-label">Results</p>
+
+      {% if results %}
+
+        <div class="ca-badge">{{ results.material_name }}</div>
+
+        <p class="ca-section-title">Geometry</p>
+        <div class="ca-row"><span class="ca-row-label">Height</span><span class="ca-row-val">{{ results.height }}<span class="ca-unit">m</span></span></div>
+        <div class="ca-row"><span class="ca-row-label">Base Diameter</span><span class="ca-row-val">{{ results.base_diameter }}<span class="ca-unit">m</span></span></div>
+        <div class="ca-row"><span class="ca-row-label">Top Diameter</span><span class="ca-row-val">{{ results.top_diameter }}<span class="ca-unit">m</span></span></div>
+        <div class="ca-row"><span class="ca-row-label">Taper Ratio</span><span class="ca-row-val">{{ results.taper_ratio }}</span></div>
+
+        <p class="ca-section-title">Physical Properties</p>
+        <div class="ca-row"><span class="ca-row-label">Material Density</span><span class="ca-row-val">{{ results.material_density }}<span class="ca-unit">kg/m³</span></span></div>
+        <div class="ca-row ca-row--hi"><span class="ca-row-label">Volume</span><span class="ca-row-val">{{ results.volume }}<span class="ca-unit">m³</span></span></div>
+        <div class="ca-row ca-row--hi"><span class="ca-row-label">Mass</span><span class="ca-row-val">{{ results.mass }}<span class="ca-unit">kg</span></span></div>
+
+        <p class="ca-section-title">Second Moment of Area — Base</p>
+        <div class="ca-row"><span class="ca-row-label">Geometric</span><span class="ca-row-val">{{ results.geometric_moment_base }}<span class="ca-unit">m⁴</span></span></div>
+        <div class="ca-row"><span class="ca-row-label">Mass moment</span><span class="ca-row-val">{{ results.mass_moment_base }}<span class="ca-unit">kg·m²</span></span></div>
+
+        <p class="ca-section-title">Second Moment of Area — Taper Averaged</p>
+        <div class="ca-row"><span class="ca-row-label">Geometric</span><span class="ca-row-val">{{ results.geometric_moment_avg }}<span class="ca-unit">m⁴</span></span></div>
+        <div class="ca-row"><span class="ca-row-label">Mass moment</span><span class="ca-row-val">{{ results.mass_moment_avg }}<span class="ca-unit">kg·m²</span></span></div>
+
+      {% else %}
+
+        <div class="ca-empty">
+          <div class="ca-empty-columns" aria-hidden="true">
+            <div class="ca-empty-col" style="width:8px;height:55px"></div>
+            <div class="ca-empty-col" style="width:8px;height:70px"></div>
+            <div class="ca-empty-col" style="width:8px;height:60px"></div>
+            <div class="ca-empty-col" style="width:8px;height:80px"></div>
+            <div class="ca-empty-col" style="width:8px;height:65px"></div>
+          </div>
+          <p class="ca-empty-text">Enter parameters<br>and run the analysis</p>
+        </div>
+
+      {% endif %}
+
+    </div>
+  </div><!-- /ca-grid -->
+
+  <!-- ── Footer ── -->
+  <footer class="ca-footer">
+    <div>
+      <b>Volume</b> &nbsp;V = (πh/3)(r₁² + r₂² + r₁r₂)<br>
+      <b>Second moment</b> &nbsp;I = πr⁴/4 &nbsp;·&nbsp; Mass moment = I · ρ
+    </div>
+    <div class="ca-footer-right">
+      Parthenon reference &nbsp;&middot;&nbsp;
+      <b>Acropolis, Athens &middot; 447 BC</b>
+    </div>
+  </footer>
+
+</div><!-- /ca-page -->
+
+{% comment %} Pass Django context flag to JS {% endcomment %}
+<script>const CA_HAS_RESULTS = {% if results %}true{% else %}false{% endif %};</script>
+<script src="{% static 'columndimensioncalculatorapp/js/homepage.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,25 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'columndimensionscalculatorapp/main.css' %}">
+  </head>
+  <body>
+
+    {% block body %}
+    {% endblock %}
+    
+    <!-- Bootstrap Bundle JS -->
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.js" integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+    
+    <!-- Custom JS -->
+    <script src="{% static 'columndimensionscalculatorapp/main.js' %}"></script>
+  </body>
+</html>
