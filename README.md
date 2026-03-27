@@ -1,6 +1,23 @@
-\resumeSubheading{Column Dimension Calculator \href{https://ccrazykingjosh.pythonanywhere.com/}{\includegraphics[height=10pt]{chainlink.png}}}{}{}{}
-\resumeItemListStart
-\resumeItem{}{Built a Django web app to analyse classical Greek columns, computing volume, mass, and second moments of area from user inputs using frustum geometry}
-\resumeItem{}{Supported three material types (Pentelic Marble, Limestone, Granite) with defaults sourced from the Parthenon (447 BC), deployed live on PythonAnywhere}
-\resumeItem{}{Implemented full-stack solution using Python, Django, and HTML/CSS/JS with a clean input-driven interface for structural parameter analysis}
-\resumeItemListEnd
+# Column Dimension Calculator
+A Django web app for analysing classical Greek columns. Input height, base 
+diameter, taper ratio, and material to compute volume, mass, and moments of 
+inertia. Columns are modelled as truncated cones using standard frustum geometry.
+Defaults are sourced from the Parthenon, Athens (447 BC).
+
+## Live Site
+🔗 [ccrazykingjosh.pythonanywhere.com](https://ccrazykingjosh.pythonanywhere.com/)
+
+## Features
+- Compute volume, mass, and second moments of area
+- Choose from Pentelic Marble, Limestone, or Granite
+- Base and taper-averaged moment calculations
+
+## Setup
+1. Clone the repo
+2. Install dependencies: `pip install django`
+3. Run migrations: `python manage.py migrate`
+4. Start the server: `python manage.py runserver`
+5. Visit `http://127.0.0.1:8000`
+
+## Tech Stack
+Python · Django · HTML/CSS/JS
